@@ -1,37 +1,129 @@
-<!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Título da página</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mensagens Anônimas com Mídia</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #121212; /* fundo preto */
+            color: #fff; /* texto branco */
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #ff3d00; /* vermelho */
+            text-align: center;
+        }
+
+        input[type="text"], input[type="file"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ff3d00; /* vermelho */
+            border-radius: 5px;
+            background-color: #1e1e1e; /* fundo escuro */
+            color: #fff; /* texto branco */
+        }
+
+        button {
+            background-color: #ff3d00; /* vermelho */
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            display: block;
+            margin: 0 auto;
+        }
+
+        button:hover {
+            background-color: #e63900; /* vermelho mais escuro */
+        }
+
+        #messagesContainer {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #1e90ff; /* azul */
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #1e1e1e; /* fundo escuro */
+        }
+
+        .message {
+            border: 1px solid #1e90ff; /* azul */
+            border-radius: 5px;
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #2a2a2a; /* fundo cinza escuro */
+        }
+
+        .media {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+    </style>
 </head>
-<body bgcolor="black">
-    <h3>Email</h3> <form method="post" action="ruillegame@gmail.com">
-         <div class="row uniform"> 
-             <div class="6u 12u(3)">
-                  <input type="text" Nome="Nome" id="Nome" value="" placeholder="Nome" />
-                   </div> 
-                   <div class="6u 12u(3)"> <input type="email" Nome="email" id="email" value="" placeholder="Email" /> 
-        </div>
-       <div class="6u 12u(3)">
-       <input type="text" Nome="Assunto" id="Assunto" value="" placeholder="Assunto" />
-  </div>
-   </div> 
- <div class="row uniform">
- <div class="6u 12u(2)">
- <input type="checkbox" id="human" Nome="human" checked>
-  <label for="human">Sou humano</label> 
-  </div> </div> <div class="row uniform"> 
-  <div class="12u"> <textarea Nome="message" id="message" placeholder="Digite sua mensagem" rows="6">
-  </textarea> 
-  </div> 
-  </div> 
-  <div class="row uniform">
-       <div class="12u"> <ul class="actions"> 
-   <li><input type="submit" value="Enviar" /></li> 
-   <li><input type="reset" value="Limpar" class="alt" />
-   </li>
-    </ul>
-     </div> 
-     </div>
+<body>
+    <h1>Envie uma Mensagem Anônima</h1>
+    <input type="text" id="username" placeholder="Seu Nome (opcional)">
+    <textarea id="message" placeholder="Sua Mensagem"></textarea>
+    <input type="file" id="mediaInput" accept="image/*,video/*">
+    <button id="sendBtn">Enviar</button>
+    <div id="messagesContainer"></div>
+
+    <script>
+        const sendBtn = document.getElementById('sendBtn');
+        const messagesContainer = document.getElementById('messagesContainer');
+
+        sendBtn.addEventListener('click', () => {
+            const username = document.getElementById('username').value || 'Anônimo';
+            const message = document.getElementById('message').value;
+            const mediaInput = document.getElementById('mediaInput');
+            const mediaFile = mediaInput.files[0];
+
+            if (message.trim() !== '' || mediaFile) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message');
+                
+                // Adiciona texto da mensagem
+                if (message.trim() !== '') {
+                    messageElement.textContent = `${username}: ${message}`;
+                }
+
+                // Adiciona mídia se houver
+                if (mediaFile) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const mediaElement = document.createElement(mediaFile.type.startsWith('video') ? 'video' : 'img');
+                        mediaElement.src = e.target.result;
+                        mediaElement.classList.add('media');
+                        mediaElement.controls = mediaFile.type.startsWith('video');
+                        messageElement.appendChild(mediaElement);
+                    };
+                    reader.readAsDataURL(mediaFile);
+                }
+
+                messagesContainer.appendChild(messageElement);
+
+                // Limpa os campos após enviar
+                document.getElementById('message').value = '';
+                mediaInput.value = '';
+
+                // Configura um timer para remover a mensagem após 1 hora (3600000 ms)
+                setTimeout(() => {
+                    messagesContainer.removeChild(messageElement);
+                }, 3600000);
+            } else {
+                alert('Por favor, digite uma mensagem ou selecione um arquivo!');
+            }
+        });
+    </script>
 </body>
 </html>
