@@ -1,129 +1,135 @@
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mensagens Anônimas com Mídia</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #121212; /* fundo preto */
-            color: #fff; /* texto branco */
-            margin: 0;
-            padding: 20px;
-        }
+<meta charset="UTF-8">
+<title>Bot Analista Mestre - Quadro Flutuante</title>
+<style>
+  body { 
+    font-family: Arial, sans-serif; 
+    margin: 0; 
+    padding: 0; 
+    background: linear-gradient(135deg, #8B0000, #00008B, #4B0082); 
+    color: #eee;
+  }
+  h1 { text-align: center; margin-top: 20px; color: #FFD700; }
+  
+  /* Quadro flutuante */
+  #botFlutuante {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 250px;
+    background: rgba(0,0,0,0.85);
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0px 0px 15px #000;
+    font-size: 14px;
+    z-index: 9999;
+  }
+  #botFlutuante p { margin: 5px 0; }
+  .compra { color: #00ff00; font-weight: bold; }
+  .venda { color: #ff3333; font-weight: bold; }
 
-        h1 {
-            color: #ff3d00; /* vermelho */
-            text-align: center;
-        }
-
-        input[type="text"], input[type="file"], textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ff3d00; /* vermelho */
-            border-radius: 5px;
-            background-color: #1e1e1e; /* fundo escuro */
-            color: #fff; /* texto branco */
-        }
-
-        button {
-            background-color: #ff3d00; /* vermelho */
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 15px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-            display: block;
-            margin: 0 auto;
-        }
-
-        button:hover {
-            background-color: #e63900; /* vermelho mais escuro */
-        }
-
-        #messagesContainer {
-            margin-top: 20px;
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid #1e90ff; /* azul */
-            border-radius: 5px;
-            padding: 10px;
-            background-color: #1e1e1e; /* fundo escuro */
-        }
-
-        .message {
-            border: 1px solid #1e90ff; /* azul */
-            border-radius: 5px;
-            padding: 10px;
-            margin: 5px 0;
-            background-color: #2a2a2a; /* fundo cinza escuro */
-        }
-
-        .media {
-            max-width: 100%;
-            height: auto;
-            border-radius: 5px;
-            margin-top: 5px;
-        }
-    </style>
+  /* Controles */
+  #controls {
+    text-align: center;
+    margin-top: 20px;
+  }
+  select {
+    padding: 10px 15px;
+    font-size: 1em;
+    border-radius: 12px;
+    border: none;
+    background-color: #333;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  select:hover { background-color: #555; transform: scale(1.05); }
+</style>
 </head>
 <body>
-    <h1>Envie uma Mensagem Anônima</h1>
-    <input type="text" id="username" placeholder="Seu Nome (opcional)">
-    <textarea id="message" placeholder="Sua Mensagem"></textarea>
-    <input type="file" id="mediaInput" accept="image/*,video/*">
-    <button id="sendBtn">Enviar</button>
-    <div id="messagesContainer"></div>
+<h1>Bot Analista Mestre - BTC/USDT</h1>
 
-    <script>
-        const sendBtn = document.getElementById('sendBtn');
-        const messagesContainer = document.getElementById('messagesContainer');
+<div id="controls">
+  <label for="intervalo">Intervalo de Análise:</label>
+  <select id="intervalo">
+    <option value="60000">1 Minuto</option>
+    <option value="300000">5 Minutos</option>
+    <option value="600000">10 Minutos</option>
+    <option value="1200000">20 Minutos</option>
+  </select>
+</div>
 
-        sendBtn.addEventListener('click', () => {
-            const username = document.getElementById('username').value || 'Anônimo';
-            const message = document.getElementById('message').value;
-            const mediaInput = document.getElementById('mediaInput');
-            const mediaFile = mediaInput.files[0];
+<!-- Quadro Flutuante -->
+<div id="botFlutuante">
+  <p id="preco">Preço: Carregando...</p>
+  <p id="acao">Ação: ⌛ Aguardando...</p>
+  <p id="motivo">Motivo: -</p>
+</div>
 
-            if (message.trim() !== '' || mediaFile) {
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('message');
-                
-                // Adiciona texto da mensagem
-                if (message.trim() !== '') {
-                    messageElement.textContent = `${username}: ${message}`;
-                }
+<script>
+const precoEl = document.getElementById("preco");
+const acaoEl = document.getElementById("acao");
+const motivoEl = document.getElementById("motivo");
+const intervaloEl = document.getElementById("intervalo");
 
-                // Adiciona mídia se houver
-                if (mediaFile) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const mediaElement = document.createElement(mediaFile.type.startsWith('video') ? 'video' : 'img');
-                        mediaElement.src = e.target.result;
-                        mediaElement.classList.add('media');
-                        mediaElement.controls = mediaFile.type.startsWith('video');
-                        messageElement.appendChild(mediaElement);
-                    };
-                    reader.readAsDataURL(mediaFile);
-                }
+let intervalo = parseInt(intervaloEl.value);
+let precoInicial = null;
+let ultimoPreco = null;
+let timer = null;
 
-                messagesContainer.appendChild(messageElement);
+// Atualiza intervalo se mudar
+intervaloEl.addEventListener("change", () => {
+  intervalo = parseInt(intervaloEl.value);
+  precoInicial = null;
+  if(timer) clearInterval(timer);
+  timer = setInterval(() => { if(precoInicial) analise(); }, intervalo);
+});
 
-                // Limpa os campos após enviar
-                document.getElementById('message').value = '';
-                mediaInput.value = '';
+// Conexão WebSocket Binance para preço em tempo real
+const socket = new WebSocket("wss://stream.binance.com:9443/ws/btcusdt@trade");
 
-                // Configura um timer para remover a mensagem após 1 hora (3600000 ms)
-                setTimeout(() => {
-                    messagesContainer.removeChild(messageElement);
-                }, 3600000);
-            } else {
-                alert('Por favor, digite uma mensagem ou selecione um arquivo!');
-            }
-        });
-    </script>
+socket.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  const preco = parseFloat(data.p);
+  ultimoPreco = preco;
+  precoEl.textContent = `Preço: $${preco.toFixed(2)}`;
+
+  if(precoInicial === null){
+    precoInicial = preco;
+    analise();
+  }
+};
+
+// Função de análise avançada
+function analise(){
+  if(!precoInicial || !ultimoPreco) return;
+  const variacao = ((ultimoPreco - precoInicial)/precoInicial)*100;
+  let acao, motivo;
+
+  if(variacao > 0.15){
+    acao = "COMPRA";
+    motivo = `O preço subiu ${variacao.toFixed(2)}% no intervalo. Tendência de alta.`;
+  } else if(variacao < -0.15){
+    acao = "VENDA";
+    motivo = `O preço caiu ${variacao.toFixed(2)}% no intervalo. Tendência de baixa.`;
+  } else {
+    acao = "COMPRA";
+    motivo = `Movimento neutro, tendência recente indica COMPRA.`;
+  }
+
+  acaoEl.textContent = `Ação: ${acao}`;
+  acaoEl.className = acao.toLowerCase() === "compra" ? "compra" : "venda";
+  motivoEl.textContent = `Motivo: ${motivo}`;
+
+  precoInicial = ultimoPreco;
+}
+
+// Timer de análise
+timer = setInterval(() => {
+  if(precoInicial) analise();
+}, intervalo);
+</script>
 </body>
 </html>
