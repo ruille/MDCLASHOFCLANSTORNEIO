@@ -1,0 +1,358 @@
+
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Torneio Clash of Clans - MDC</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #111, #222);
+  color: white;
+  text-align: center;
+  padding-bottom: 80px;
+}
+
+/* ===== CABEÇALHO ===== */
+header {
+  background: #0a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 4px solid #ffcc00;
+}
+
+header div {
+  display: flex;
+  align-items: center;
+}
+
+header img {
+  width: 30px; /* ajustado para menor tamanho */
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+header h1 {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+/* Botão hambúrguer */
+#hamburguer {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: auto;
+  padding: 8px;
+}
+#hamburguer div {
+  width: 30px;
+  height: 3px;
+  background: #ffcc00;
+  margin: 4px 0;
+  border-radius: 2px;
+}
+
+/* Menu lateral */
+#menu {
+  position: fixed;
+  top: 0;
+  right: -200px;
+  height: 100%;
+  width: 200px;
+  background: rgba(20,20,20,0.95);
+  padding-top: 60px;
+  border-left: 2px solid #ffcc00;
+  transition: right 0.3s ease;
+  z-index: 999;
+}
+#menu.show {
+  right: 0;
+}
+.menu-item {
+  display: block;
+  background: #333;
+  border: none;
+  padding: 12px;
+  margin: 10px;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+.menu-item:hover {
+  background: #ffcc00;
+  color: black;
+  transform: scale(1.05);
+}
+
+/* Botões principais */
+.botao {
+  margin-top: 20px;
+  background: #ffcc00;
+  color: black;
+  border-radius: 14px;
+  padding: 15px;
+  width: 80%;
+  max-width: 350px;
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+  transition: 0.25s;
+}
+.botao:hover { transform: scale(1.08); background: #ffe066; }
+.botao:active { transform: scale(0.92); }
+
+/* Chaveamento */
+.bracket {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 10px; /* menor espaçamento */
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.fase {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.jogo {
+  border: 2px solid #ffcc00;
+  padding: 8px;
+  width: 130px; /* tamanho menor */
+  min-height: 50px;
+  border-radius: 8px;
+  background: #111;
+  font-size: 12px; /* fonte menor */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.linha {
+  width: 30px;
+  height: 2px;
+  background: #ffcc00;
+  margin: 0 auto;
+}
+
+/* Destaques */
+#destaquesTela {
+  display: none;
+  padding: 20px;
+}
+ul { list-style: none; margin-top: 8px; }
+h2, h3 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+.premios {
+  margin-top: 15px;
+  background: #151515;
+  padding: 15px;
+  border-radius: 10px;
+  border: 2px solid #ffcc00;
+}
+.premio-item {
+  font-size: 16px;
+  margin: 5px 0;
+}
+
+/* Tabela nomes */
+#nomesTabela {
+  margin: 30px auto;
+  max-width: 600px;
+  width: 90%;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+#nomesTabela th, #nomesTabela td {
+  border: 1px solid #ffcc00;
+  padding: 12px;
+  text-align: left;
+  background: #222;
+}
+#nomesTabela th {
+  background: #333;
+  font-size: 16px;
+}
+
+/* Rodapé */
+footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: #0a0a0a;
+  color: #ffcc00;
+  padding: 12px;
+  font-size: 14px;
+  border-top: 3px solid #ffcc00;
+}
+
+/* Responsivo */
+@media (max-width: 400px) {
+  .bracket { transform: scale(0.9); }
+  header h1 { font-size: 18px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex; align-items:center;">
+    <img src="IMG-20251028-WA0001.jpg" alt="Ícone do Clã" />
+    <h1>MDC</h1>
+  </div>
+  <!-- Menu hambúrguer -->
+  <button id="hamburguer" aria-label="Menu">
+    <div></div>
+    <div></div>
+    <div></div>
+  </button>
+</header>
+
+<div id="menu">
+  <button class="menu-item" onclick="abrirLinkClã()">Clã</button>
+  <button class="menu-item" onclick="abrirLinkWhats()">Grupo Whats</button>
+  <button class="menu-item" onclick="mostrarDestaques()">Destaques</button>
+</div>
+
+<!-- TELA PRINCIPAL -->
+<div id="conteudoPrincipal">
+  <h2 style="margin-top:15px;">Chaveamento Oficial</h2>
+
+  <div class="bracket">
+    <!-- Quartas - partidas com nomes preenchidos e tamanho compacto -->
+    <div class="fase">
+      <div class="jogo">Ruille<br>vs<br>Pedro Costa</div>
+      <div class="jogo">Clash 2025<br>vs<br>Marcos Daniel</div>
+      <div class="jogo">Ytalus<br>vs<br>Pradella Marcos Roberto</div>
+      <div class="jogo">Pkzinho22<br>vs<br>Nicolas Santos</div>
+    </div>
+    <div class="linha"></div>
+    <!-- Semifinal -->
+    <div class="fase">
+      <div class="jogo">Vencedor J1</div>
+      <div class="jogo">Vencedor J2</div>
+      <div class="jogo">Vencedor J3</div>
+      <div class="jogo">Vencedor J4</div>
+    </div>
+    <div class="linha"></div>
+    <!-- Final -->
+    <div class="fase">
+      <div class="jogo">🏆 Final 🏆</div>
+    </div>
+  </div>
+
+  <!-- Premiação -->
+  <div class="premios">
+    <h2>🏆 Premiação Final 🏆</h2>
+    <p class="premio-item">🥇 1º Lugar — R$ 32,00 via Pix</p>
+    <p class="premio-item">🥈 2º Lugar — R$ 25,00 via Pix</p>
+    <p class="premio-item">🥉 3º Lugar — R$ 15,00 via Pix</p>
+  </div>
+
+  <!-- Tabela nomes -->
+  <h2 style="margin-top:30px;">Lista de Jogadores</h2>
+  <table id="nomesTabela">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Pontos</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Ruille</td><td>0</td></tr>
+      <tr><td>Pedro Costa</td><td>0</td></tr>
+      <tr><td>Clash 2025</td><td>0</td></tr>
+      <tr><td>Marcos Daniel</td><td>0</td></tr>
+      <tr><td>Ytalus</td><td>0</td></tr>
+      <tr><td>Pradella Marcos Roberto</td><td>0</td></tr>
+      <tr><td>Pkzinho22</td><td>0</td></tr>
+      <tr><td>Nicolas Santos</td><td>0</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- TELA DE DESTAQUES -->
+<div id="destaquesTela">
+  <h2>Destaques do Clã</h2>
+
+  <h3>Melhor Doado</h3>
+  <ul>
+    <li>Jogador 1</li>
+    <li>Jogador 2</li>
+    <li>Jogador 3</li>
+  </ul>
+
+  <h3>Melhor Atacador</h3>
+  <ul>
+    <li>Jogador A</li>
+    <li>Jogador B</li>
+    <li>Jogador C</li>
+  </ul>
+
+  <h3>Melhor Defesa</h3>
+  <ul>
+    <li>Jogador X</li>
+    <li>Jogador Y</li>
+    <li>Jogador Z</li>
+  </ul>
+
+  <button onclick="voltar()" class="botao">Voltar</button>
+</div>
+
+<footer>
+  Criador do site: RUILLE SOUZA | Idade: 21 | Clã Atual: MDC
+</footer>
+
+<script>
+const menuBtn = document.getElementById("hamburguer");
+const menu = document.getElementById("menu");
+
+// Abrir/Fechar menu hambúrguer
+menuBtn.addEventListener("click", () => {
+  menu.classList.toggle("show");
+});
+
+// Fechar menu ao clicar fora
+window.addEventListener("click", e => {
+  if (!menu.contains(e.target) && !menuBtn.contains(e.target)) {
+    menu.classList.remove("show");
+  }
+});
+
+// Ações do menu
+function abrirLinkClã() {
+  window.location.href = "https://link.clashofclans.com/pt?action=OpenClanProfile&tag=2JQUCLJPR";
+}
+
+function abrirLinkWhats() {
+  window.location.href = "https://chat.whatsapp.com/G6Gg2LFvAqFBLMgaPvK8aG";
+}
+
+function mostrarDestaques() {
+  document.getElementById("conteudoPrincipal").style.display = "none";
+  document.getElementById("destaquesTela").style.display = "block";
+}
+
+function voltar() {
+  document.getElementById("conteudoPrincipal").style.display = "block";
+  document.getElementById("destaquesTela").style.display = "none";
+}
+</script>
+
+</body>
+</html>
