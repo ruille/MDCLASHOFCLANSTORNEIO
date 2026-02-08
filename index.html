@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Site + Worker</title>
+<title>Teste GitHub + Cloudflare Worker</title>
 
 <style>
 body {
@@ -10,10 +10,10 @@ body {
   background: #111;
   color: #fff;
   font-family: Arial, sans-serif;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
 }
 
 #box {
@@ -24,14 +24,21 @@ button {
   padding: 15px 30px;
   font-size: 16px;
   cursor: pointer;
-  border-radius: 6px;
   border: none;
+  border-radius: 6px;
 }
 
 #resposta {
   margin-top: 20px;
   font-size: 18px;
-  color: #0f0;
+  color: #00ff88;
+  min-height: 24px;
+}
+
+#error {
+  margin-top: 10px;
+  color: #ff5555;
+  font-size: 14px;
 }
 </style>
 </head>
@@ -39,17 +46,31 @@ button {
 <body>
 
 <div id="box">
-  <h1>Cloudflare funcionando 🚀</h1>
-  <button onclick="chamarWorker()">Chamar backend</button>
+  <h1>Teste Front + Backend</h1>
+
+  <button id="btn">Chamar backend</button>
+
   <div id="resposta"></div>
+  <div id="error"></div>
 </div>
 
 <script>
-async function chamarWorker() {
-  const res = await fetch("https://meu-primeiro-worker.ruillegame.workers.dev");
-  const texto = await res.text();
-  document.getElementById("resposta").innerText = texto;
-}
+const workerURL = "https://meu-primeiro-worker.ruillegame.workers.dev";
+
+document.getElementById("btn").addEventListener("click", async () => {
+  document.getElementById("resposta").innerText = "Chamando backend...";
+  document.getElementById("error").innerText = "";
+
+  try {
+    const res = await fetch(workerURL);
+    const texto = await res.text();
+    document.getElementById("resposta").innerText = texto;
+  } catch (e) {
+    document.getElementById("resposta").innerText = "";
+    document.getElementById("error").innerText =
+      "Erro ao chamar o backend ❌";
+  }
+});
 </script>
 
 </body>
