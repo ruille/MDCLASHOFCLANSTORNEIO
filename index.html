@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Biometria com Digital</title>
+<title>Login com digital</title>
 
 <style>
 body {
@@ -16,51 +16,78 @@ body {
 }
 #box { text-align: center; }
 button {
-  padding: 15px 30px;
+  padding: 14px 28px;
   font-size: 16px;
+  margin: 10px;
 }
-#status { margin-top: 20px; color: #00ff88; }
+#status {
+  margin-top: 20px;
+  color: #00ff88;
+}
 </style>
 </head>
 
 <body>
 
 <div id="box">
-  <h2>Entrar com digital</h2>
-  <button onclick="login()">Usar biometria</button>
+  <h2>Entrar com biometria</h2>
+
+  <button onclick="registrar()">Cadastrar digital</button><br>
+  <button onclick="login()">Entrar com digital</button>
+
   <div id="status"></div>
 </div>
 
 <script>
-async function login() {
-  // 1️⃣ pedir challenge ao backend
-  const res = await fetch(
-    "https://meu-primeiro-worker.ruillegame.workers.dev/challenge"
-  );
-  const data = await res.json();
+function gerarChallenge() {
+  const c = new Uint8Array(32);
+  crypto.getRandomValues(c);
+  return c;
+}
 
-  const challenge = new Uint8Array(data.challenge);
-
+// CADASTRO
+async function registrar() {
   const publicKey = {
-    challenge,
-    timeout: 60000,
+    challenge: gerarChallenge(),
+    rp: { name: "Meu Site" },
+    user: {
+      id: new Uint8Array(16),
+      name: "usuario@teste.com",
+      displayName: "Usuário Teste"
+    },
+    pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+    authenticatorSelection: {
+      authenticatorAttachment: "platform",
+      userVerification: "required"
+    }
+  };
+
+  try {
+    await navigator.credentials.create({ publicKey });
+    document.getElementById("status").innerText =
+      "Digital cadastrada ✅";
+  } catch {
+    document.getElementById("status").innerText =
+      "Falha ao cadastrar ❌";
+  }
+}
+
+// LOGIN
+async function login() {
+  const publicKey = {
+    challenge: gerarChallenge(),
     userVerification: "required"
   };
 
   try {
-    // 2️⃣ chama a biometria do Android
     await navigator.credentials.get({ publicKey });
 
-    // 3️⃣ avisa o backend (didático)
-    await fetch(
-      "https://meu-primeiro-worker.ruillegame.workers.dev/validate"
-    );
+    // 👉 REDIRECIONA PRA OUTRA PÁGINA
+    window.location.href = "ok.html";
 
+  } catch {
     document.getElementById("status").innerText =
-      "FUNCIONA ✅ Biometria validada";
-  } catch (e) {
-    document.getElementById("status").innerText =
-      "Falhou ❌";
+      "Login falhou ❌";
   }
 }
 </script>
