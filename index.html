@@ -2,62 +2,66 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Teste Cloudflare</title>
+<title>Biometria com Digital</title>
 
 <style>
 body {
-  margin: 0;
   background: #111;
   color: #fff;
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
-#box {
-  text-align: center;
-}
-
+#box { text-align: center; }
 button {
   padding: 15px 30px;
   font-size: 16px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
 }
-
-#resposta {
-  margin-top: 20px;
-  font-size: 18px;
-  color: #00ff88;
-}
+#status { margin-top: 20px; color: #00ff88; }
 </style>
 </head>
 
 <body>
 
 <div id="box">
-  <h2>Cloudflare funcionando 🚀</h2>
-
-  <button onclick="chamarWorker()">Chamar backend</button>
-
-  <div id="resposta"></div>
+  <h2>Entrar com digital</h2>
+  <button onclick="login()">Usar biometria</button>
+  <div id="status"></div>
 </div>
 
 <script>
-function chamarWorker() {
-  alert("Botão clicado ✅");
+async function login() {
+  // 1️⃣ pedir challenge ao backend
+  const res = await fetch(
+    "https://meu-primeiro-worker.ruillegame.workers.dev/challenge"
+  );
+  const data = await res.json();
 
-  fetch("https://meu-primeiro-worker.ruillegame.workers.dev")
-    .then(res => res.text())
-    .then(texto => {
-      document.getElementById("resposta").innerText = texto;
-    })
-    .catch(err => {
-      document.getElementById("resposta").innerText = "Erro ao chamar backend ❌";
-    });
+  const challenge = new Uint8Array(data.challenge);
+
+  const publicKey = {
+    challenge,
+    timeout: 60000,
+    userVerification: "required"
+  };
+
+  try {
+    // 2️⃣ chama a biometria do Android
+    await navigator.credentials.get({ publicKey });
+
+    // 3️⃣ avisa o backend (didático)
+    await fetch(
+      "https://meu-primeiro-worker.ruillegame.workers.dev/validate"
+    );
+
+    document.getElementById("status").innerText =
+      "FUNCIONA ✅ Biometria validada";
+  } catch (e) {
+    document.getElementById("status").innerText =
+      "Falhou ❌";
+  }
 }
 </script>
 
