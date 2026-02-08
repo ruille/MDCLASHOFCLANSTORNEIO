@@ -2,77 +2,81 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Fórum simples</title>
+<title>Fórum Tempo Real</title>
 
 <style>
 body {
-  background: #111;
+  margin: 0;
+  background: #000;
   color: #fff;
-  font-family: Arial;
-  padding: 20px;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
+
+.box {
+  width: 90%;
+  max-width: 400px;
+}
+
 input, textarea, button {
   width: 100%;
-  margin: 5px 0;
+  margin: 6px 0;
   padding: 10px;
-}
-.post {
-  background: #222;
-  padding: 10px;
-  margin-top: 10px;
   border-radius: 5px;
+  border: none;
 }
-.nome {
-  color: #00ff88;
-  font-weight: bold;
+
+button {
+  background: #444;
+  color: #fff;
+}
+
+.post {
+  background: #111;
+  margin-top: 6px;
+  padding: 6px;
+  border-radius: 5px;
+  font-size: 13px;
 }
 </style>
 </head>
-
 <body>
 
-<h2>💬 Fórum simples</h2>
+<div class="box">
+  <h2>Fórum (Tempo Real)</h2>
 
-<input id="nome" placeholder="Seu nome">
-<textarea id="texto" placeholder="Digite sua mensagem"></textarea>
-<button onclick="postar()">Postar</button>
+  <input id="nome" placeholder="Seu nome">
+  <textarea id="texto" placeholder="Mensagem"></textarea>
+  <button onclick="enviar()">Enviar</button>
 
-<div id="forum"></div>
+  <div id="posts"></div>
+</div>
 
 <script>
-const API = "https://forumdb.ruillegame.workers.dev";
+const ws = new WebSocket("wss://forumdb.ruillegame.workers.dev/ws");
 
-async function postar() {
-  await fetch(API + "/post", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      nome: nome.value,
-      texto: texto.value
-    })
-  });
+ws.onmessage = e => {
+  const p = JSON.parse(e.data);
+  document.getElementById("posts").innerHTML += `
+    <div class="post">
+      <b>${p.nome}</b><br>
+      ${p.texto}
+    </div>
+  `;
+};
 
-  texto.value = "";
-  carregar();
+function enviar() {
+  const nome = document.getElementById("nome").value;
+  const texto = document.getElementById("texto").value;
+
+  if (!nome || !texto) return;
+
+  ws.send(JSON.stringify({ nome, texto }));
+  document.getElementById("texto").value = "";
 }
-
-async function carregar() {
-  const res = await fetch(API + "/list");
-  const dados = await res.json();
-
-  forum.innerHTML = "";
-  dados.forEach(m => {
-    forum.innerHTML += `
-      <div class="post">
-        <div class="nome">${m.nome}</div>
-        <div>${m.texto}</div>
-        <small>${m.data}</small>
-      </div>
-    `;
-  });
-}
-
-carregar();
 </script>
 
 </body>
