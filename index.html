@@ -2,99 +2,77 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Biometria real</title>
+<title>Fórum simples</title>
 
 <style>
 body {
   background: #111;
   color: #fff;
   font-family: Arial;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding: 20px;
 }
-#box { text-align: center; }
-button {
-  padding: 14px 28px;
-  font-size: 16px;
-  margin: 10px;
+input, textarea, button {
+  width: 100%;
+  margin: 5px 0;
+  padding: 10px;
 }
-#status {
-  margin-top: 20px;
+.post {
+  background: #222;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+.nome {
   color: #00ff88;
+  font-weight: bold;
 }
 </style>
 </head>
 
 <body>
 
-<div id="box">
-  <h2>Entrar com biometria</h2>
+<h2>💬 Fórum simples</h2>
 
-  <button onclick="registrar()">Cadastrar digital</button><br>
-  <button onclick="login()">Entrar com digital</button>
+<input id="nome" placeholder="Seu nome">
+<textarea id="texto" placeholder="Digite sua mensagem"></textarea>
+<button onclick="postar()">Postar</button>
 
-  <div id="status"></div>
-</div>
+<div id="forum"></div>
 
 <script>
-function gerarChallenge() {
-  const c = new Uint8Array(32);
-  crypto.getRandomValues(c);
-  return c;
+const API = "https://forumdb.ruillegame.workers.dev";
+
+async function postar() {
+  await fetch(API + "/post", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      nome: nome.value,
+      texto: texto.value
+    })
+  });
+
+  texto.value = "";
+  carregar();
 }
 
-// 🔐 CADASTRO (PASSKEY RESIDENTE)
-async function registrar() {
-  const publicKey = {
-    challenge: gerarChallenge(),
-    rp: {
-      name: "Meu Site",
-      id: location.hostname   // MUITO IMPORTANTE
-    },
-    user: {
-      id: crypto.getRandomValues(new Uint8Array(16)),
-      name: "usuario@teste.com",
-      displayName: "Usuário Teste"
-    },
-    pubKeyCredParams: [
-      { type: "public-key", alg: -7 }
-    ],
-    authenticatorSelection: {
-      authenticatorAttachment: "platform",
-      userVerification: "required",
-      residentKey: "required"   // 🔥 A CHAVE DO PROBLEMA
-    },
-    timeout: 60000
-  };
+async function carregar() {
+  const res = await fetch(API + "/list");
+  const dados = await res.json();
 
-  try {
-    await navigator.credentials.create({ publicKey });
-    document.getElementById("status").innerText =
-      "Digital cadastrada ✅";
-  } catch (e) {
-    document.getElementById("status").innerText =
-      "Falha ao cadastrar ❌";
-  }
+  forum.innerHTML = "";
+  dados.forEach(m => {
+    forum.innerHTML += `
+      <div class="post">
+        <div class="nome">${m.nome}</div>
+        <div>${m.texto}</div>
+        <small>${m.data}</small>
+      </div>
+    `;
+  });
 }
 
-// 🔓 LOGIN
-async function login() {
-  const publicKey = {
-    challenge: gerarChallenge(),
-    userVerification: "required",
-    timeout: 60000
-  };
-
-  try {
-    await navigator.credentials.get({ publicKey });
-    window.location.href = "ok.html";
-  } catch (e) {
-    document.getElementById("status").innerText =
-      "Login falhou ❌";
-  }
-}
+carregar();
 </script>
 
 </body>
