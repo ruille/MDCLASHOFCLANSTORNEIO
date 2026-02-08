@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Login com digital</title>
+<title>Biometria real</title>
 
 <style>
 body {
@@ -45,47 +45,52 @@ function gerarChallenge() {
   return c;
 }
 
-// CADASTRO
+// 🔐 CADASTRO (PASSKEY RESIDENTE)
 async function registrar() {
   const publicKey = {
     challenge: gerarChallenge(),
-    rp: { name: "Meu Site" },
+    rp: {
+      name: "Meu Site",
+      id: location.hostname   // MUITO IMPORTANTE
+    },
     user: {
-      id: new Uint8Array(16),
+      id: crypto.getRandomValues(new Uint8Array(16)),
       name: "usuario@teste.com",
       displayName: "Usuário Teste"
     },
-    pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+    pubKeyCredParams: [
+      { type: "public-key", alg: -7 }
+    ],
     authenticatorSelection: {
       authenticatorAttachment: "platform",
-      userVerification: "required"
-    }
+      userVerification: "required",
+      residentKey: "required"   // 🔥 A CHAVE DO PROBLEMA
+    },
+    timeout: 60000
   };
 
   try {
     await navigator.credentials.create({ publicKey });
     document.getElementById("status").innerText =
       "Digital cadastrada ✅";
-  } catch {
+  } catch (e) {
     document.getElementById("status").innerText =
       "Falha ao cadastrar ❌";
   }
 }
 
-// LOGIN
+// 🔓 LOGIN
 async function login() {
   const publicKey = {
     challenge: gerarChallenge(),
-    userVerification: "required"
+    userVerification: "required",
+    timeout: 60000
   };
 
   try {
     await navigator.credentials.get({ publicKey });
-
-    // 👉 REDIRECIONA PRA OUTRA PÁGINA
     window.location.href = "ok.html";
-
-  } catch {
+  } catch (e) {
     document.getElementById("status").innerText =
       "Login falhou ❌";
   }
