@@ -1,23 +1,22 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Teste Biometria</title>
+<title>Site + Worker</title>
 
 <style>
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0f0f0f;
+  background: #111;
   color: #fff;
+  font-family: Arial, sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
 }
 
-#container {
+#box {
   text-align: center;
 }
 
@@ -25,51 +24,32 @@ button {
   padding: 15px 30px;
   font-size: 16px;
   cursor: pointer;
-  border: none;
   border-radius: 6px;
+  border: none;
 }
 
-#ok {
-  font-size: 40px;
-  display: none;
+#resposta {
+  margin-top: 20px;
+  font-size: 18px;
+  color: #0f0;
 }
 </style>
 </head>
 
 <body>
 
-<div id="container">
-  <button id="btn">Entrar com biometria</button>
-  <div id="ok">✅ funciona</div>
+<div id="box">
+  <h1>Cloudflare funcionando 🚀</h1>
+  <button onclick="chamarWorker()">Chamar backend</button>
+  <div id="resposta"></div>
 </div>
 
 <script>
-const btn = document.getElementById("btn");
-const ok = document.getElementById("ok");
-
-btn.onclick = async () => {
-  if (!window.PublicKeyCredential) {
-    alert("Biometria não suportada neste navegador");
-    return;
-  }
-
-  try {
-    await navigator.credentials.get({
-      publicKey: {
-        challenge: new Uint8Array(32),
-        timeout: 60000,
-        userVerification: "required",
-        allowCredentials: []
-      }
-    });
-
-    btn.style.display = "none";
-    ok.style.display = "block";
-
-  } catch (e) {
-    alert("Biometria cancelada ou falhou");
-  }
-};
+async function chamarWorker() {
+  const res = await fetch("https://meu-primeiro-worker.ruillegame.workers.dev");
+  const texto = await res.text();
+  document.getElementById("resposta").innerText = texto;
+}
 </script>
 
 </body>
